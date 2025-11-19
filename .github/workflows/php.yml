@@ -30,6 +30,9 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
+    - name: Add execute permission for build.sh
+      run: chmod +x build.sh
+
     - name: Run Build Script
       run: ./build.sh
 

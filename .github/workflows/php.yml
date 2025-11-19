@@ -1,0 +1,50 @@
+name: PHP CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    - name: Install Composer Dependencies
+      run: composer install --no-interaction --prefer-dist
+
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v2
+      with:
+        args: >
+          -Dsonar.projectKey=php-app
+          -Dsonar.sources=.
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    - name: Run Build Script
+      run: ./build.sh
+
+    - name: Upload Artifact to S3
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Upload ZIP to S3
+      run: aws s3 cp build/php-app.zip s3://your-bucket-name/php-app.zip
+
+    - name: Deploy to Tomcat
+      run: |
+        curl --upload-file build/php-app.zip \
+        "${{ secrets.TOMCAT_HOST }}/manager/text/deploy?path=/phpapp&update=true" \
+        --user "${{ secrets.TOMCAT_USERNAME }}:${{ secrets.TOMCAT_PASSWORD }}"

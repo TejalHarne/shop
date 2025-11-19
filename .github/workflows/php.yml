@@ -20,15 +20,15 @@ jobs:
     - name: Install Composer Dependencies
       run: composer install --no-interaction --prefer-dist
 
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v2
-      with:
-        args: >
-          -Dsonar.projectKey=php-app
-          -Dsonar.sources=.
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+   # - name: SonarQube Scan
+    #  uses: SonarSource/sonarqube-scan-action@v2
+     # with:
+       # args: >
+         # -Dsonar.projectKey=php-app
+         # -Dsonar.sources=.
+     # env:
+       # SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        #SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
     - name: Add execute permission for build.sh
       run: chmod +x build.sh
@@ -44,7 +44,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Upload ZIP to S3
-      run: aws s3 cp build/php-app.zip s3://your-bucket-name/php-app.zip
+      run: aws s3 cp build/php-app.zip s3://aws-tejal-bucket-demo/php-app.zip
 
     - name: Deploy to Tomcat
       run: |
